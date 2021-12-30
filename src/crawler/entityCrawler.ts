@@ -20,6 +20,7 @@ export class EntityCrawler {
   extractLinks($) {
     const links = [];
     const linkElements = $('.mw-parser-output p a')
+      .filter((_, m) => $(m).attr('title'))
       .map((_, a) => $(a).attr('href'))
       .toArray();
     linkElements.forEach((linkElement) => {
@@ -45,6 +46,8 @@ export class EntityCrawler {
       const $ = cheerio.load(pageData);
       const names = this.extractNames($);
       const links = this.extractLinks($);
+      console.log(names.length);
+      console.log(links.length);
       if (names.length !== links.length) {
         throw 'Problem crawling';
       }
