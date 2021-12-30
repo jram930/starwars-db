@@ -16,3 +16,16 @@ Eventually would like to focus on some variations of the following:
 - Factions
 
 Once the databaase is in decent shape would like to serve it up in at least tabular format on a website.
+
+# Instructions
+
+- Set up a local postgres on your machine (I set up mine up in Docker) with username `postgres` and passowrd `password`
+- Create a `star_wars` database
+- Run `npm run start` to prettify, compile, and run the application
+
+# Implementation Notes
+
+To avoid getting blocked by Wookiepedia, I have implemented a couple of safeguards:
+- Everytime a page from Wookiepedia is scraped, the data is stored to disk under the `wookiepedia` folder. The `useFileIfPossible` variable in `pageFetcher.ts` is defaulted to `true`. When this is `true`, anytime a page would be scraped from Wookiepedia, the data is fetched from disk instead.
+- An in-memory cache is kept with the contents of each page that was scraped. If a page has already been scraped/loaded this run, it will be loaded from memory instead.
+- If a page absolutely must be scraped from Wookiepedia, a randomized sleep is used to have a delay of 20 to 120 seconds between each fetch.
