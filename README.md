@@ -1,6 +1,6 @@
 # Star Wars Extended Universe Database
 
-A database to curate knowledge about the Star Wars Extended Universe (EU) from four years after the Battle of Yavin (4 ABY) onnward (as that is the time period of books I tend to focus on reading).
+A database to curate knowledge about the Star Wars Extended Universe (EU) from four years after the Battle of Yavin (4 ABY) onward (as that is the time period of books I tend to focus on reading).
 
 For now this repo is concerned with getting the broad strokes of knowledge going by scraping [Wookiepedia](https://starwars.fandom.com/wiki/Main_Page) for a large portion of the database. Once that is in decent shape I plan on curating it with my own notes as I continue reading the books.
 
