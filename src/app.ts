@@ -6,6 +6,7 @@ import { DBConnector } from './db/dbConnector';
 const crawler = new Crawler();
 const db = new DBConnector();
 
+// Generated with https://patorjk.com/software/taag/#p=display&f=Big%20Money-ne&t=STAR%20WARS%20DB%20
 console.log(`
   /$$$$$$  /$$$$$$$$ /$$$$$$  /$$$$$$$        /$$      /$$  /$$$$$$  /$$$$$$$   /$$$$$$        /$$$$$$$  /$$$$$$$       
  /$$__  $$|__  $$__//$$__  $$| $$__  $$      | $$  /$ | $$ /$$__  $$| $$__  $$ /$$__  $$      | $$__  $$| $$__  $$      

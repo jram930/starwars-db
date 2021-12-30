@@ -1,8 +1,7 @@
-import axios from 'axios';
 import cheerio from 'cheerio';
 import { Book } from './book';
-
-const BOOK_LIST = 'https://starwars.fandom.com/wiki/Timeline_of_Legends_books';
+import { BOOK_PAGE } from './constants';
+import { PageFetcher } from './pageFetcher';
 
 export class BookCrawler {
   extractTitles($: cheerio.Root): string[] {
@@ -16,6 +15,17 @@ export class BookCrawler {
     return titles;
   }
 
+  extractLinks($: cheerio.Root): string[] {
+    const links = [];
+    const linkElements = $('tr.novel td:nth-child(3) a')
+      .map((_, a) => $(a).attr('href'))
+      .toArray();
+    linkElements.forEach((linkElement) => {
+      links.push(linkElement.toString());
+    });
+    return links;
+  }
+
   extractYears($: cheerio.Root): number[][] {
     const years = [];
     const yearCells = $('tr.novel td:nth-child(1)').toArray();
@@ -26,9 +36,7 @@ export class BookCrawler {
       if (listedYears.length > 2) {
         listedYears = [listedYears[0], listedYears[listedYears.length - 1]];
       }
-      const listedYearNumbers = listedYears.map((y) =>
-        this.convertYearToNumber(y.toString())
-      );
+      const listedYearNumbers = listedYears.map((y) => this.convertYearToNumber(y.toString()));
       years.push([...listedYearNumbers]);
     });
     return years;
@@ -74,16 +82,19 @@ export class BookCrawler {
 
   async crawl(): Promise<Book[]> {
     const books = [];
-    const response = await axios.get(BOOK_LIST);
-    const $ = cheerio.load(response.data);
+    const pageFetcher = new PageFetcher();
+    const pageData = await pageFetcher.fetchPageData(BOOK_PAGE);
+    const $ = cheerio.load(pageData);
     const titles = this.extractTitles($);
+    const links = this.extractLinks($);
     const authors = this.extractAuthors($);
     const yearList = this.extractYears($);
     const publishYears = this.extractPublishYears($);
     if (
       titles.length !== authors.length &&
       titles.length !== yearList.length &&
-      titles.length !== publishYears.length
+      titles.length !== publishYears.length &&
+      titles.length !== links.length
     ) {
       throw 'Something went wrong with crawling!';
     }
@@ -92,8 +103,9 @@ export class BookCrawler {
       const author = authors[i];
       const years = yearList[i];
       const publishYear = publishYears[i];
+      const link = links[i];
       if (years[0] >= 4) {
-        books.push(new Book(title, author, years, publishYear));
+        books.push(new Book(title, author, years, publishYear, link));
       }
     }
     return books;
