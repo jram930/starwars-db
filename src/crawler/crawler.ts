@@ -10,6 +10,7 @@ export class Crawler {
   }
 
   async crawl() {
+    console.log(`----> Crawling books`);
     this.books = await this.bookCrawler.crawl();
   }
 }

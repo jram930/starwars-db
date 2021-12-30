@@ -1,5 +1,6 @@
 import { Client } from 'pg';
 import { Book } from '../crawler/book';
+import { Crawler } from '../crawler/crawler';
 
 export class DBConnector {
   client: Client;
@@ -51,5 +52,10 @@ export class DBConnector {
     });
     sql = sql.slice(0, sql.length - 2);
     return sql;
+  }
+
+  async insertAllData(crawler: Crawler) {
+    console.log(`----> Inserting books`);
+    await this.insertBooks(crawler.books);
   }
 }

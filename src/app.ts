@@ -6,12 +6,31 @@ import { DBConnector } from './db/dbConnector';
 const crawler = new Crawler();
 const db = new DBConnector();
 
+console.log(`
+  /$$$$$$  /$$$$$$$$ /$$$$$$  /$$$$$$$        /$$      /$$  /$$$$$$  /$$$$$$$   /$$$$$$        /$$$$$$$  /$$$$$$$       
+ /$$__  $$|__  $$__//$$__  $$| $$__  $$      | $$  /$ | $$ /$$__  $$| $$__  $$ /$$__  $$      | $$__  $$| $$__  $$      
+| $$  \\__/   | $$  | $$  \\ $$| $$  \\ $$      | $$ /$$$| $$| $$  \\ $$| $$  \\ $$| $$  \\__/      | $$  \\ $$| $$  \\ $$      
+|  $$$$$$    | $$  | $$$$$$$$| $$$$$$$/      | $$/$$ $$ $$| $$$$$$$$| $$$$$$$/|  $$$$$$       | $$  | $$| $$$$$$$       
+ \\____  $$   | $$  | $$__  $$| $$__  $$      | $$$$_  $$$$| $$__  $$| $$__  $$ \\____  $$      | $$  | $$| $$__  $$      
+ /$$  \\ $$   | $$  | $$  | $$| $$  \\ $$      | $$$/ \\  $$$| $$  | $$| $$  \\ $$ /$$  \\ $$      | $$  | $$| $$  \\ $$      
+|  $$$$$$/   | $$  | $$  | $$| $$  | $$      | $$/   \\  $$| $$  | $$| $$  | $$|  $$$$$$/      | $$$$$$$/| $$$$$$$/      
+ \\______/    |__/  |__/  |__/|__/  |__/      |__/     \\__/|__/  |__/|__/  |__/ \\______/       |_______/ |_______/       
+                                                                                                                      
+                                                                                                                      
+                                                                                                                      
+`);
+
 async function ingestData() {
   try {
+    console.log(`--> Connecting to DB`);
     await db.connect();
+    console.log(`--> Wiping existing data`);
     await db.wipeData();
+    console.log(`--> Crawling wookiepedia`);
     await crawler.crawl();
-    await db.insertBooks(crawler.books);
+    console.log(`--> Inserting data`);
+    await db.insertAllData(crawler);
+    console.log('--> All data crawled and loaded');
   } catch (err) {
     console.error(err);
   } finally {
