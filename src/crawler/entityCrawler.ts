@@ -34,10 +34,10 @@ export class EntityCrawler {
     return name;
   }
 
-  async crawl(booksLong: Book[]) {
+  async crawl(books: Book[]) {
     const entities = [];
     const pageFetcher = new PageFetcher();
-    const books = booksLong.slice(0, 1);
+    // const books = booksLong.slice(0, 1);
     for (let i = 0; i < books.length; i++) {
       const book = books[i];
       console.log(`------> Crawling entities for ${book.title}`);
