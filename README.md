@@ -1,4 +1,4 @@
-# starwars-db
+# Star Wars Extended Universe Database
 
 A database to curate knowledge about the Star Wars Extended Universe (EU) from four years after the Battle of Yavin (4 ABY) onnward (as that is the time period of books I tend to focus on reading).
 
