@@ -31,4 +31,4 @@ To avoid getting blocked by Wookiepedia, I have implemented a couple of safeguar
 
 - Everytime a page from Wookiepedia is scraped, the data is stored to disk under the `wookiepedia` folder. The `useFileIfPossible` variable in `pageFetcher.ts` is defaulted to `true`. When this is `true`, anytime a page would be scraped from Wookiepedia, the data is fetched from disk instead.
 - An in-memory cache is kept with the contents of each page that was scraped. If a page has already been scraped/loaded this run, it will be loaded from memory instead.
-- If a page absolutely must be scraped from Wookiepedia, a randomized sleep is used to have a delay of 20 to 120 seconds between each fetch.
+- If a page absolutely must be scraped from Wookiepedia, a randomized sleep is used to have a delay of 5 to 30 seconds between each fetch.

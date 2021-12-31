@@ -98,6 +98,7 @@ export class BookCrawler {
     ) {
       throw 'Something went wrong with crawling!';
     }
+    const icon = String.fromCodePoint(0x1f4d6);
     for (let i = 0; i < titles.length; i++) {
       const title = titles[i];
       const author = authors[i];
@@ -105,6 +106,7 @@ export class BookCrawler {
       const publishYear = publishYears[i];
       const link = links[i];
       if (years[0] >= 4) {
+        console.log('\x1b[36m%s\x1b[0m', `----> ${icon} Title: ${title}, Author: ${author}, Published: ${publishYear}`);
         books.push(new Book(title, author, years, publishYear, link));
       }
     }

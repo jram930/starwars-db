@@ -39,8 +39,8 @@ export class PageFetcher {
       }
     }
 
-    // Randomly sleep from 20 - 120 seconds
-    await this.sleep(20000 + this.getRandomInt(100) * 1000);
+    // Randomly sleep from 5 - 30 seconds
+    await this.sleep(5000 + this.getRandomInt(25) * 1000);
     // await this.sleep(5000);
     // console.log(`Fetching ${url}`);
     const response = await axios.get(url);
