@@ -4,6 +4,8 @@ import { BASE_URL } from './constants';
 import { Entity } from './entity';
 import { PageFetcher } from './pageFetcher';
 
+const DEBUGGING = false;
+
 export class EntityCrawler {
   extractNames($) {
     const names = [];
@@ -38,7 +40,7 @@ export class EntityCrawler {
   async crawl(books: Book[]) {
     const entities = [];
     const pageFetcher = new PageFetcher();
-    // const books = booksLong.slice(0, 1);
+    books = DEBUGGING ? [books[Math.floor(Math.random() * books.length)]] : books;
     for (let i = 0; i < books.length; i++) {
       const book = books[i];
       console.log(`------> Crawling entities for ${book.title}`);

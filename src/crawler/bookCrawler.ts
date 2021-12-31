@@ -106,7 +106,7 @@ export class BookCrawler {
       const publishYear = publishYears[i];
       const link = links[i];
       if (years[0] >= 4) {
-        console.log('\x1b[36m%s\x1b[0m', `----> ${icon} Title: ${title}, Author: ${author}, Published: ${publishYear}`);
+        console.log('\x1b[36m%s\x1b[0m', `----> ${icon} BOOK -- Title: ${title}, Author: ${author}, Published: ${publishYear}`);
         books.push(new Book(title, author, years, publishYear, link));
       }
     }

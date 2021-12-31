@@ -40,28 +40,27 @@ export class CharacterCrawler {
     let emoji = String.fromCodePoint(0x1f9d1);
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
-      console.log(`------> Crawling ${entity.name} to see if it is a character (${i + 1}/${entities.length})`);
       const url = entity.link.toLowerCase().startsWith('http') ? entity.link : `${BASE_URL}${entity.link}`;
-      const pageData = await pageFetcher.fetchPageData(url);
-      const $ = await cheerio.load(pageData);
-      if (this.isCharacterPage($)) {
-        const name = entity.name;
-        const species = this.extractBioInfo($, 'species');
-        const homeworld = this.extractBioInfo($, 'homeworld');
-        const gender = this.extractBioInfo($, 'gender');
-        if (gender.toLowerCase() === 'male') {
-          emoji = String.fromCodePoint(0x1f468);
-        } else if (gender.toLowerCase() === 'female') {
-          emoji = String.fromCodePoint(0x1f469);
-        }
-        const id = `${name}_${species}_${gender}_${homeworld}`;
-        if (!seenBefore[id]) {
+      if (!seenBefore[url]) {
+        console.log(`------> Crawling ${entity.name} from ${entity.bookTitle} to see if it is a character (${i + 1}/${entities.length})`);
+        const pageData = await pageFetcher.fetchPageData(url);
+        const $ = await cheerio.load(pageData);
+        if (this.isCharacterPage($)) {
+          const name = entity.name;
+          const species = this.extractBioInfo($, 'species');
+          const homeworld = this.extractBioInfo($, 'homeworld');
+          const gender = this.extractBioInfo($, 'gender');
+          if (gender.toLowerCase() === 'male') {
+            emoji = String.fromCodePoint(0x1f468);
+          } else if (gender.toLowerCase() === 'female') {
+            emoji = String.fromCodePoint(0x1f469);
+          }
           console.log(
             '\x1b[36m%s\x1b[0m',
-            `--------> ${emoji} Name: ${name}, Species: ${species}, Gender: ${gender}, Homeworld: ${homeworld}`
+            `--------> ${emoji} CHARACTER -- Name: ${name}, Species: ${species}, Gender: ${gender}, Homeworld: ${homeworld}`
           );
           characters.push(new Character(name, species, gender, homeworld));
-          seenBefore[`${name}_${species}_${gender}_${homeworld}`] = true;
+          seenBefore[url] = true;
         }
       }
     }
