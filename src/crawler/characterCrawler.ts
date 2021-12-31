@@ -34,7 +34,8 @@ export class CharacterCrawler {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i];
       console.log(`------> Crawling ${entity.name} to see if it is a character`);
-      const pageData = await pageFetcher.fetchPageData(`${BASE_URL}${entity.link}`);
+      const url = entity.link.toLowerCase().startsWith('http') ? entity.link : `${BASE_URL}${entity.link}`;
+      const pageData = await pageFetcher.fetchPageData(url);
       const $ = await cheerio.load(pageData);
       if (this.isCharacterPage($)) {
         const name = entity.name;
