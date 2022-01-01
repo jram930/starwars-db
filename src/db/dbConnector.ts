@@ -5,6 +5,8 @@ import { Crawler } from '../crawler/crawler';
 import { Entity } from '../crawler/entity';
 import { Moon } from '../crawler/moon';
 import { Planet } from '../crawler/planet';
+import { Vehicle } from '../crawler/vehicle';
+import { Weapon } from '../crawler/weapon';
 
 export class DBConnector {
   client: Client;
@@ -41,6 +43,8 @@ export class DBConnector {
     await this.client.query('DROP TABLE IF EXISTS character');
     await this.client.query('DROP TABLE IF EXISTS planet');
     await this.client.query('DROP TABLE IF EXISTS moon');
+    await this.client.query('DROP TABLE IF EXISTS weapon');
+    await this.client.query('DROP TABLE IF EXISTS vehicle');
     await this.client.query(
       'create table book (id SERIAL PRIMARY KEY, title text unique not null, author text, begin_year integer, end_year integer, publish_year integer)'
     );
@@ -53,6 +57,8 @@ export class DBConnector {
     await this.client.query(
       'create table moon (id SERIAL PRIMARY KEY, name text unique not null, planet text, system text, sector text, region text, classification text) '
     );
+    await this.client.query('create table weapon (id SERIAL PRIMARY KEY, name text unique not null, type text) ');
+    await this.client.query('create table vehicle (id SERIAL PRIMARY KEY, name text unique not null, model text) ');
     await this.client.query(
       'create table link_book_character (id SERIAL PRIMARY KEY, book_id integer, character_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES character(id))'
     );
@@ -148,6 +154,46 @@ export class DBConnector {
     }
   }
 
+  createInsertWeaponSql(weapons: Weapon[]): string {
+    let sql = `INSERT INTO weapon (name, type) VALUES `;
+    weapons.forEach((weapon) => {
+      sql += `('${this.sanitizeString(weapon.name)}', '${this.sanitizeString(weapon.type)}'), `;
+    });
+    sql = sql.slice(0, sql.length - 2);
+    return sql;
+  }
+
+  async insertWeapons(weapons: Weapon[]) {
+    const sql = this.createInsertWeaponSql(weapons);
+    try {
+      await this.client.query(sql);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  createInsertVehicleSql(vehicles: Vehicle[]): string {
+    let sql = `INSERT INTO vehicle (name, model) VALUES `;
+    const seen = {};
+    vehicles.forEach((vehicle) => {
+      if (!seen[vehicle.name]) {
+        sql += `('${this.sanitizeString(vehicle.name)}', '${this.sanitizeString(vehicle.model)}'), `;
+        seen[vehicle.name] = true;
+      }
+    });
+    sql = sql.slice(0, sql.length - 2);
+    return sql;
+  }
+
+  async insertVehicles(vehicles: Vehicle[]) {
+    const sql = this.createInsertVehicleSql(vehicles);
+    try {
+      await this.client.query(sql);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async insertBookCharacterLinks(entities: Entity[], characters: Character[]) {
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
@@ -222,6 +268,10 @@ export class DBConnector {
     await this.insertPlanets(crawler.planets);
     console.log(`----> Inserting ${crawler.moons.length} moons`);
     await this.insertMoons(crawler.moons);
+    console.log(`----> Inserting ${crawler.weapons.length} weapons`);
+    await this.insertWeapons(crawler.weapons);
+    console.log(`----> Inserting ${crawler.vehicles.length} vehicles`);
+    await this.insertVehicles(crawler.vehicles);
     console.log(`----> Inserting book <-> character links`);
     await this.insertBookCharacterLinks(crawler.entities, crawler.characters);
     console.log(`----> Inserting book <-> planet links`);

@@ -13,6 +13,8 @@ import { Weapon } from './weapon';
 import { WeaponCrawler } from './weaponCrawler';
 import { MoonCrawler } from './moonCrawler';
 import { Moon } from './moon';
+import { VehicleCrawler } from './vehicleCrawler';
+import { Vehicle } from './vehicle';
 
 const seenBefore = {};
 const VERBOSE = false;
@@ -24,12 +26,14 @@ export class Crawler {
   planetCrawler: PlanetCrawler;
   moonCrawler: MoonCrawler;
   weaponCrawler: WeaponCrawler;
+  vehicleCrawler: VehicleCrawler;
   books: Book[];
   entities: Entity[];
   characters: Character[];
   planets: Planet[];
   moons: Moon[];
   weapons: Weapon[];
+  vehicles: Vehicle[];
 
   constructor() {
     this.bookCrawler = new BookCrawler();
@@ -38,10 +42,12 @@ export class Crawler {
     this.planetCrawler = new PlanetCrawler();
     this.moonCrawler = new MoonCrawler();
     this.weaponCrawler = new WeaponCrawler();
+    this.vehicleCrawler = new VehicleCrawler();
     this.characters = [];
     this.planets = [];
     this.moons = [];
     this.weapons = [];
+    this.vehicles = [];
   }
 
   async crawl() {
@@ -74,6 +80,8 @@ export class Crawler {
           this.moons.push(await this.moonCrawler.crawl($, entity.name));
         } else if (this.weaponCrawler.isWeaponPage($)) {
           this.weapons.push(await this.weaponCrawler.crawl($, entity.name));
+        } else if (this.vehicleCrawler.isVehiclePage($)) {
+          this.vehicles.push(await this.vehicleCrawler.crawl($, entity.name));
         }
       }
     }

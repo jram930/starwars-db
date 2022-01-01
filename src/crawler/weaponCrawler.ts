@@ -10,18 +10,18 @@ export class WeaponCrawler {
   }
 
   extractWeaponInfo($: cheerio.Root, tag: string) {
-    let planetInfo = 'Unknown';
-    const planetElements = $(`div[data-source=${tag}]`).toArray();
-    if (planetElements && planetElements.length) {
-      const planetElement = $('a', planetElements[0])
+    let weaponInfo = 'Unknown';
+    const weaponElements = $(`div[data-source=${tag}]`).toArray();
+    if (weaponElements && weaponElements.length) {
+      const weaponElement = $('a', weaponElements[0])
         .map((_, a) => $(a).text())
         .toArray();
-      if (planetElement) {
-        planetInfo = planetElement.toString();
-        planetInfo = planetInfo.split(',')[0];
+      if (weaponElement) {
+        weaponInfo = weaponElement.toString();
+        weaponInfo = weaponInfo.split(',')[0];
       }
     }
-    return planetInfo;
+    return weaponInfo;
   }
 
   async crawl($: cheerio.Root, name): Promise<Weapon> {
