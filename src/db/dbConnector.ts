@@ -57,8 +57,12 @@ export class DBConnector {
     await this.client.query(
       'create table moon (id SERIAL PRIMARY KEY, name text unique not null, planet text, system text, sector text, region text, classification text) '
     );
-    await this.client.query('create table weapon (id SERIAL PRIMARY KEY, name text unique not null, type text) ');
-    await this.client.query('create table vehicle (id SERIAL PRIMARY KEY, name text unique not null, model text) ');
+    await this.client.query(
+      'create table weapon (id SERIAL PRIMARY KEY, name text unique not null, type text, manufacturer text, model text) '
+    );
+    await this.client.query(
+      'create table vehicle (id SERIAL PRIMARY KEY, name text unique not null, model text, manufacturer text, classification text) '
+    );
     await this.client.query(
       'create table link_book_character (id SERIAL PRIMARY KEY, book_id integer, character_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES character(id))'
     );
@@ -155,9 +159,11 @@ export class DBConnector {
   }
 
   createInsertWeaponSql(weapons: Weapon[]): string {
-    let sql = `INSERT INTO weapon (name, type) VALUES `;
+    let sql = `INSERT INTO weapon (name, type, manufacturer, model) VALUES `;
     weapons.forEach((weapon) => {
-      sql += `('${this.sanitizeString(weapon.name)}', '${this.sanitizeString(weapon.type)}'), `;
+      sql += `('${this.sanitizeString(weapon.name)}', '${this.sanitizeString(weapon.type)}', '${this.sanitizeString(
+        weapon.manufacturer
+      )}', '${this.sanitizeString(weapon.model)}'), `;
     });
     sql = sql.slice(0, sql.length - 2);
     return sql;
@@ -173,11 +179,13 @@ export class DBConnector {
   }
 
   createInsertVehicleSql(vehicles: Vehicle[]): string {
-    let sql = `INSERT INTO vehicle (name, model) VALUES `;
+    let sql = `INSERT INTO vehicle (name, model, manufacturer, classification) VALUES `;
     const seen = {};
     vehicles.forEach((vehicle) => {
       if (!seen[vehicle.name]) {
-        sql += `('${this.sanitizeString(vehicle.name)}', '${this.sanitizeString(vehicle.model)}'), `;
+        sql += `('${this.sanitizeString(vehicle.name)}', '${this.sanitizeString(vehicle.model)}', '${this.sanitizeString(
+          vehicle.manufacturer
+        )}', '${this.sanitizeString(vehicle.classification)}'), `;
         seen[vehicle.name] = true;
       }
     });
