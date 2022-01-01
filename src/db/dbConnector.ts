@@ -3,6 +3,7 @@ import { Book } from '../crawler/book';
 import { Character } from '../crawler/character';
 import { Crawler } from '../crawler/crawler';
 import { Entity } from '../crawler/entity';
+import { Moon } from '../crawler/moon';
 import { Planet } from '../crawler/planet';
 
 export class DBConnector {
@@ -35,9 +36,11 @@ export class DBConnector {
     }
     await this.client.query('DROP TABLE IF EXISTS link_book_character');
     await this.client.query('DROP TABLE IF EXISTS link_book_planet');
+    await this.client.query('DROP TABLE IF EXISTS link_book_moon');
     await this.client.query('DROP TABLE IF EXISTS book');
     await this.client.query('DROP TABLE IF EXISTS character');
     await this.client.query('DROP TABLE IF EXISTS planet');
+    await this.client.query('DROP TABLE IF EXISTS moon');
     await this.client.query(
       'create table book (id SERIAL PRIMARY KEY, title text unique not null, author text, begin_year integer, end_year integer, publish_year integer)'
     );
@@ -48,10 +51,16 @@ export class DBConnector {
       'create table planet (id SERIAL PRIMARY KEY, name text unique not null, system text, sector text, region text, classification text) '
     );
     await this.client.query(
+      'create table moon (id SERIAL PRIMARY KEY, name text unique not null, planet text, system text, sector text, region text, classification text) '
+    );
+    await this.client.query(
       'create table link_book_character (id SERIAL PRIMARY KEY, book_id integer, character_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES character(id))'
     );
     await this.client.query(
       'create table link_book_planet (id SERIAL PRIMARY KEY, book_id integer, planet_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_planet FOREIGN KEY(planet_id) REFERENCES planet(id))'
+    );
+    await this.client.query(
+      'create table link_book_moon (id SERIAL PRIMARY KEY, book_id integer, moon_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_moon FOREIGN KEY(moon_id) REFERENCES moon(id))'
     );
   }
 
@@ -119,6 +128,26 @@ export class DBConnector {
     }
   }
 
+  createInsertMoonSql(moons: Moon[]): string {
+    let sql = `INSERT INTO moon (name, planet, system, sector, region, classification) VALUES `;
+    moons.forEach((moon) => {
+      sql += `('${this.sanitizeString(moon.name)}', '${this.sanitizeString(moon.planet)}', '${this.sanitizeString(
+        moon.system
+      )}', '${this.sanitizeString(moon.sector)}', '${this.sanitizeString(moon.region)}', '${this.sanitizeString(moon.classification)}'), `;
+    });
+    sql = sql.slice(0, sql.length - 2);
+    return sql;
+  }
+
+  async insertMoons(moons: Moon[]) {
+    const sql = this.createInsertMoonSql(moons);
+    try {
+      await this.client.query(sql);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async insertBookCharacterLinks(entities: Entity[], characters: Character[]) {
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
@@ -163,6 +192,27 @@ export class DBConnector {
     }
   }
 
+  async insertBookMoonLinks(entities: Entity[], moons: Moon[]) {
+    for (let i = 0; i < moons.length; i++) {
+      const moon = moons[i];
+      const matchingEntities = entities.filter((e) => e.name === moon.name);
+      for (let j = 0; j < matchingEntities.length; j++) {
+        try {
+          const matchingEntity = matchingEntities[j];
+          const bookRecords = await this.client.query(
+            `SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`
+          );
+          const bookId = bookRecords.rows[0].id;
+          const moonRecords = await this.client.query(`SELECT * FROM moon where name = '${this.sanitizeString(matchingEntity.name)}'`);
+          const moonId = moonRecords.rows[0].id;
+          await this.client.query(`INSERT INTO link_book_moon (book_id, moon_id) VALUES (${bookId}, ${moonId})`);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+  }
+
   async insertAllData(crawler: Crawler) {
     console.log(`----> Inserting ${crawler.books.length} books`);
     await this.insertBooks(crawler.books);
@@ -170,9 +220,13 @@ export class DBConnector {
     await this.insertCharacters(crawler.characters);
     console.log(`----> Inserting ${crawler.planets.length} planets`);
     await this.insertPlanets(crawler.planets);
+    console.log(`----> Inserting ${crawler.moons.length} moons`);
+    await this.insertMoons(crawler.moons);
     console.log(`----> Inserting book <-> character links`);
     await this.insertBookCharacterLinks(crawler.entities, crawler.characters);
     console.log(`----> Inserting book <-> planet links`);
     await this.insertBookPlanetLinks(crawler.entities, crawler.planets);
+    console.log(`----> Inserting book <-> moon links`);
+    await this.insertBookMoonLinks(crawler.entities, crawler.moons);
   }
 }
