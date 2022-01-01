@@ -164,11 +164,11 @@ export class DBConnector {
   }
 
   async insertAllData(crawler: Crawler) {
-    console.log(`----> Inserting books`);
+    console.log(`----> Inserting ${crawler.books.length} books`);
     await this.insertBooks(crawler.books);
-    console.log(`----> Inserting characters`);
+    console.log(`----> Inserting ${crawler.characters.length} characters`);
     await this.insertCharacters(crawler.characters);
-    console.log(`----> Inserting planets`);
+    console.log(`----> Inserting ${crawler.planets.length} planets`);
     await this.insertPlanets(crawler.planets);
     console.log(`----> Inserting book <-> character links`);
     await this.insertBookCharacterLinks(crawler.entities, crawler.characters);
