@@ -21,6 +21,7 @@ export class DBConnector {
       user: 'postgres',
       password: 'password',
       database: 'star_wars',
+      port: 7777,
     });
     await this.client.connect();
     this.connected = true;
@@ -32,44 +33,46 @@ export class DBConnector {
     }
   }
 
+  async query(query: string) {
+    return this.client.query(query);
+  }
+
   async wipeData() {
     if (!this.connected) {
       throw 'Not connected!';
     }
-    await this.client.query('DROP TABLE IF EXISTS link_book_character');
-    await this.client.query('DROP TABLE IF EXISTS link_book_planet');
-    await this.client.query('DROP TABLE IF EXISTS link_book_moon');
-    await this.client.query('DROP TABLE IF EXISTS book');
-    await this.client.query('DROP TABLE IF EXISTS character');
-    await this.client.query('DROP TABLE IF EXISTS planet');
-    await this.client.query('DROP TABLE IF EXISTS moon');
-    await this.client.query('DROP TABLE IF EXISTS weapon');
-    await this.client.query('DROP TABLE IF EXISTS vehicle');
-    await this.client.query(
+    await this.query('DROP TABLE IF EXISTS link_book_character');
+    await this.query('DROP TABLE IF EXISTS link_book_planet');
+    await this.query('DROP TABLE IF EXISTS link_book_moon');
+    await this.query('DROP TABLE IF EXISTS book');
+    await this.query('DROP TABLE IF EXISTS character');
+    await this.query('DROP TABLE IF EXISTS planet');
+    await this.query('DROP TABLE IF EXISTS moon');
+    await this.query('DROP TABLE IF EXISTS weapon');
+    await this.query('DROP TABLE IF EXISTS vehicle');
+    await this.query(
       'create table book (id SERIAL PRIMARY KEY, title text unique not null, author text, begin_year integer, end_year integer, publish_year integer)'
     );
-    await this.client.query(
+    await this.query(
       'create table character (id SERIAL PRIMARY KEY, name text unique not null, species text, gender text, homeworld text)'
     );
-    await this.client.query(
+    await this.query(
       'create table planet (id SERIAL PRIMARY KEY, name text unique not null, system text, sector text, region text, classification text) '
     );
-    await this.client.query(
+    await this.query(
       'create table moon (id SERIAL PRIMARY KEY, name text unique not null, planet text, system text, sector text, region text, classification text) '
     );
-    await this.client.query(
-      'create table weapon (id SERIAL PRIMARY KEY, name text unique not null, type text, manufacturer text, model text) '
-    );
-    await this.client.query(
+    await this.query('create table weapon (id SERIAL PRIMARY KEY, name text unique not null, type text, manufacturer text, model text) ');
+    await this.query(
       'create table vehicle (id SERIAL PRIMARY KEY, name text unique not null, model text, manufacturer text, classification text) '
     );
-    await this.client.query(
+    await this.query(
       'create table link_book_character (id SERIAL PRIMARY KEY, book_id integer, character_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_character FOREIGN KEY(character_id) REFERENCES character(id))'
     );
-    await this.client.query(
+    await this.query(
       'create table link_book_planet (id SERIAL PRIMARY KEY, book_id integer, planet_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_planet FOREIGN KEY(planet_id) REFERENCES planet(id))'
     );
-    await this.client.query(
+    await this.query(
       'create table link_book_moon (id SERIAL PRIMARY KEY, book_id integer, moon_id integer, CONSTRAINT fk_book FOREIGN KEY(book_id) REFERENCES book(id), CONSTRAINT fk_moon FOREIGN KEY(moon_id) REFERENCES moon(id))'
     );
   }
@@ -77,7 +80,7 @@ export class DBConnector {
   async insertBooks(books: Book[]) {
     const sql = this.createInsertBookSql(books);
     try {
-      await this.client.query(sql);
+      await this.query(sql);
     } catch (err) {
       console.error(err);
     }
@@ -112,7 +115,7 @@ export class DBConnector {
   async insertCharacters(characters: Character[]) {
     const sql = this.createInsertCharacterSql(characters);
     try {
-      await this.client.query(sql);
+      await this.query(sql);
     } catch (err) {
       console.error(err);
     }
@@ -132,7 +135,7 @@ export class DBConnector {
   async insertPlanets(planets: Planet[]) {
     const sql = this.createInsertPlanetSql(planets);
     try {
-      await this.client.query(sql);
+      await this.query(sql);
     } catch (err) {
       console.error(err);
     }
@@ -152,7 +155,7 @@ export class DBConnector {
   async insertMoons(moons: Moon[]) {
     const sql = this.createInsertMoonSql(moons);
     try {
-      await this.client.query(sql);
+      await this.query(sql);
     } catch (err) {
       console.error(err);
     }
@@ -172,7 +175,7 @@ export class DBConnector {
   async insertWeapons(weapons: Weapon[]) {
     const sql = this.createInsertWeaponSql(weapons);
     try {
-      await this.client.query(sql);
+      await this.query(sql);
     } catch (err) {
       console.error(err);
     }
@@ -196,7 +199,7 @@ export class DBConnector {
   async insertVehicles(vehicles: Vehicle[]) {
     const sql = this.createInsertVehicleSql(vehicles);
     try {
-      await this.client.query(sql);
+      await this.query(sql);
     } catch (err) {
       console.error(err);
     }
@@ -209,15 +212,11 @@ export class DBConnector {
       for (let j = 0; j < matchingEntities.length; j++) {
         try {
           const matchingEntity = matchingEntities[j];
-          const bookRecords = await this.client.query(
-            `SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`
-          );
+          const bookRecords = await this.query(`SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`);
           const bookId = bookRecords.rows[0].id;
-          const characterRecords = await this.client.query(
-            `SELECT * FROM character where name = '${this.sanitizeString(matchingEntity.name)}'`
-          );
+          const characterRecords = await this.query(`SELECT * FROM character where name = '${this.sanitizeString(matchingEntity.name)}'`);
           const characterId = characterRecords.rows[0].id;
-          await this.client.query(`INSERT INTO link_book_character (book_id, character_id) VALUES (${bookId}, ${characterId})`);
+          await this.query(`INSERT INTO link_book_character (book_id, character_id) VALUES (${bookId}, ${characterId})`);
         } catch (err) {
           console.error(err);
         }
@@ -232,13 +231,11 @@ export class DBConnector {
       for (let j = 0; j < matchingEntities.length; j++) {
         try {
           const matchingEntity = matchingEntities[j];
-          const bookRecords = await this.client.query(
-            `SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`
-          );
+          const bookRecords = await this.query(`SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`);
           const bookId = bookRecords.rows[0].id;
-          const planetRecords = await this.client.query(`SELECT * FROM planet where name = '${this.sanitizeString(matchingEntity.name)}'`);
+          const planetRecords = await this.query(`SELECT * FROM planet where name = '${this.sanitizeString(matchingEntity.name)}'`);
           const planetId = planetRecords.rows[0].id;
-          await this.client.query(`INSERT INTO link_book_planet (book_id, planet_id) VALUES (${bookId}, ${planetId})`);
+          await this.query(`INSERT INTO link_book_planet (book_id, planet_id) VALUES (${bookId}, ${planetId})`);
         } catch (err) {
           console.error(err);
         }
@@ -253,13 +250,11 @@ export class DBConnector {
       for (let j = 0; j < matchingEntities.length; j++) {
         try {
           const matchingEntity = matchingEntities[j];
-          const bookRecords = await this.client.query(
-            `SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`
-          );
+          const bookRecords = await this.query(`SELECT * FROM book where title = '${this.sanitizeString(matchingEntity.bookTitle)}'`);
           const bookId = bookRecords.rows[0].id;
-          const moonRecords = await this.client.query(`SELECT * FROM moon where name = '${this.sanitizeString(matchingEntity.name)}'`);
+          const moonRecords = await this.query(`SELECT * FROM moon where name = '${this.sanitizeString(matchingEntity.name)}'`);
           const moonId = moonRecords.rows[0].id;
-          await this.client.query(`INSERT INTO link_book_moon (book_id, moon_id) VALUES (${bookId}, ${moonId})`);
+          await this.query(`INSERT INTO link_book_moon (book_id, moon_id) VALUES (${bookId}, ${moonId})`);
         } catch (err) {
           console.error(err);
         }

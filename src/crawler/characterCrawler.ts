@@ -1,5 +1,5 @@
 import { Character } from './character';
-import { extractSidePanelInfo } from './crawlUtil';
+import { extractSidePanelInfo, extractSummary } from './crawlUtil';
 
 export class CharacterCrawler {
   isCharacterPage($) {
@@ -19,6 +19,7 @@ export class CharacterCrawler {
     const species = extractSidePanelInfo($, 'species');
     const homeworld = extractSidePanelInfo($, 'homeworld');
     const gender = extractSidePanelInfo($, 'gender');
+    const summary = extractSummary($);
     if (gender.toLowerCase() === 'male') {
       emoji = String.fromCodePoint(0x1f468);
     } else if (gender.toLowerCase() === 'female') {
@@ -28,6 +29,7 @@ export class CharacterCrawler {
       '\x1b[36m%s\x1b[0m',
       `--------> ${emoji} CHARACTER -- Name: ${name}, Species: ${species}, Gender: ${gender}, Homeworld: ${homeworld}`
     );
+    console.log('\x1b[35m', summary);
     return new Character(name, species, gender, homeworld);
   }
 }

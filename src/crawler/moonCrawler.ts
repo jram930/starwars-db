@@ -1,4 +1,4 @@
-import { extractSidePanelInfo } from './crawlUtil';
+import { extractSidePanelInfo, extractSummary } from './crawlUtil';
 import { Moon } from './moon';
 
 export class MoonCrawler {
@@ -19,10 +19,12 @@ export class MoonCrawler {
       .replace(/ subsector/g, '')
       .replace(/ sector/g, '');
     const region = extractSidePanelInfo($, 'region').replace(/ region/g, '');
+    const summary = extractSummary($);
     console.log(
       '\x1b[36m%s\x1b[0m',
       `--------> ${emoji} MOON -- Name: ${name}, Planet: ${planet}, System: ${system}, Sector: ${sector}, Region: ${region}, Classification: ${classification}`
     );
+    console.log('\x1b[35m', summary);
     return new Moon(name, planet, system, sector, region, classification);
   }
 }

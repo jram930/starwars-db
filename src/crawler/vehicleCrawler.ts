@@ -1,4 +1,4 @@
-import { extractSidePanelInfo } from './crawlUtil';
+import { extractSidePanelInfo, extractSummary } from './crawlUtil';
 import { Vehicle } from './vehicle';
 
 export class VehicleCrawler {
@@ -15,10 +15,12 @@ export class VehicleCrawler {
     const model = extractSidePanelInfo($, 'model');
     const manufacturer = extractSidePanelInfo($, 'manufacturer');
     const classification = extractSidePanelInfo($, 'class');
+    const summary = extractSummary($);
     console.log(
       '\x1b[36m%s\x1b[0m',
       `--------> ${emoji} VEHICLE -- Name: ${name}, Model: ${model}, Manufacturer: ${manufacturer}, Classification: ${classification}`
     );
+    console.log('\x1b[35m', summary);
     return new Vehicle(name, model, manufacturer, classification);
   }
 }

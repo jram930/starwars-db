@@ -1,4 +1,4 @@
-import { extractSidePanelInfo } from './crawlUtil';
+import { extractSidePanelInfo, extractSummary } from './crawlUtil';
 import { Weapon } from './weapon';
 
 export class WeaponCrawler {
@@ -15,10 +15,12 @@ export class WeaponCrawler {
     const type = extractSidePanelInfo($, 'type');
     const manufacturer = extractSidePanelInfo($, 'manufacturer');
     const model = extractSidePanelInfo($, 'model');
+    const summary = extractSummary($);
     console.log(
       '\x1b[36m%s\x1b[0m',
       `--------> ${emoji} WEAPON -- Name: ${name}, Type: ${type}, Manufacturer: ${manufacturer}, Model: ${model}`
     );
+    console.log('\x1b[35m', summary);
     return new Weapon(name, type, manufacturer, model);
   }
 }
